@@ -1,8 +1,9 @@
 import unidecode
 import requests
-import pandas as pd
 import datetime
 from bs4 import BeautifulSoup
+import re
+import os
 
 def start():
     choix = 0
@@ -56,16 +57,16 @@ def scrapping(url_recup):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     infos_action = soup.find('div', class_='quote-header-id')
-    nom = infos_action.find('h1').text
+    nom_action = infos_action.find('h1').text
     price = soup.find('span', class_='price').text
     price = float(price.replace('€', '').replace(',', '.').strip())
     variation = soup.find('span', class_='variation').text
 
-    print(f"Nom de l'action : {nom}")
+    print(f"Nom de l'action : {nom_action}")
     print(f'Prix actuel : {price}')
     print(f'Variation de prix : {variation}')
 
-    return nom, price
+    return nom_action, price
 
 def write(nom_action, price, code_isin, url_recup):
     nb_action = int(input("Combien d'action souhaitez-vous acheter ?\nChoix : "))
@@ -79,14 +80,46 @@ def write(nom_action, price, code_isin, url_recup):
         f.write(f"\n[[{code_isin}][{nom_action}][{price}][{nb_action}][{datetime.datetime.now()}][{url_recup}]]")
 
 def read():
-    today_price, _ = scrapping()
-    filename = "wallet.txt"
+    chemin = "C://Users//fabi1//Documents//PYTHONxFinance//"
+    print("Voici tous les wallets que vous pouvez évaluer\nListe des wallets :")
+    fichiers = os.listdir(chemin)
+
+    # Affiche les noms des fichiers
+    for nom_fichier in fichiers:
+        print(nom_fichier)
+    nom_wallet = input("Quel est le nom du wallet que vous souhaitez évaluer ?\nChoix : ")
+    filename = chemin + nom_wallet
+
     with open(filename, "r") as f:
-        lines = f.readlines()
-        last_price_line = lines[0]
-        last_price = float(last_price_line.split(":")[1].strip().replace("€", ""))
-        variation = today_price - last_price
-        return variation
+        transactions = f.readlines()
+    return transactions
+
+def calcul_gain(transactions):
+    #current_datetime = datetime.datetime.now()
+    total_gain_loss = 0.0
+    for transaction in transactions:
+        match = re.search(r'\[\[(.*?)\]\]', transaction)
+        if match:
+            transaction_info = match.group(1).split('][')
+            prix_achat = float(transaction_info[2])
+            quantite = int(transaction_info[3])
+            url = transaction_info[5]
+
+            nom_action, prix_actuel = scrapping(url)
+
+            gain_perte_unitaire = round(prix_achat - prix_actuel, 4)
+
+            if gain_perte_unitaire > 0:
+                print(f"L'action {nom_action} a une plus-value de {gain_perte_unitaire} €")
+            else:
+                print(f"L'action {nom_action} a une moins-value de {gain_perte_unitaire} €")
+
+            total_gain_loss += gain_perte_unitaire * quantite
+
+    if total_gain_loss > 0:
+        print(f"Le wallet a une plus-value totale de {round(total_gain_loss, 4)} €")
+    else:
+        print(f"Le wallet a une moins-value totale de {round(total_gain_loss, 4)} €")
 
 if __name__ == '__main__':
     choix = start()
@@ -97,7 +130,8 @@ if __name__ == '__main__':
         scrapping(url_recup)
 
     elif choix == 2:
-        read()
+        transactions = read()
+        calcul_gain(transactions)
 
     elif choix == 3:
         code_isin = isin(choix)
@@ -105,5 +139,6 @@ if __name__ == '__main__':
         nom_action, price = scrapping(url_recup)
         write(nom_action, price, code_isin, url_recup)
 
-
-
+"""
+Display un tableau compte-rendu ou même graphique
+"""
