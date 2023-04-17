@@ -24,11 +24,14 @@ import datetime
 from bs4 import BeautifulSoup
 
 def isin():
-    code_isin = input("Rentrez le code ISIN de l'action que vous souhaitez analyser\nChoix : ")
+    code_isin = input("Rentrez le code ISIN de l'action que vous souhaitez analyser\n\nChoix : ")
 
     return code_isin
 
 def url(code_isin, url_utilise):
+    query = ""
+    url_recup = ""
+
     if url_utilise == 1:
         query = f"site:tradingsat.com donnees-financieres {code_isin}"
     if url_utilise == 2:
@@ -119,7 +122,8 @@ def finder(liste, *args):
             ligne2 = i
             return ligne, ligne2
         except:
-            ligne, ligne2 = 0
+            ligne = 0
+            ligne2 = 0
             return ligne, ligne2
 
 def ca(liste_donnees):
@@ -204,6 +208,9 @@ def gearing(liste_ratio):
         nb_annee = len(liste_ratio[ligne])
         tableau = affichage_donnee(liste_ratio, nb_annee, nom_donnee, ligne)
 
+"""
+PARTIE PROCESSUS
+"""
 if __name__ == '__main__':
     code_isin = isin()
     lien_donnee = url(code_isin, 1)
@@ -225,15 +232,15 @@ if __name__ == '__main__':
     #capitalisation/fonds propres
 
 """
+GUI AVEC PHP qui lance python
+- AI Login page
+---
 TODO : 
 - PER Sectoriel
 - Scrap secteur
 - Scrapping différent secteur bancaire (à vérif)
 - différencier ROE et ROCE 
 - diff entre -400 et -
----
-Module select action, write (isin, nom action, prix, quantité, sur csv ou txt)
-- Puis check moins-value ou plus-value
 ---
 Module "pépite"
 - Ressortir des actions avec ratios similaires ? (sous-evaluation Stellantis)
