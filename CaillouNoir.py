@@ -17,11 +17,12 @@ def redirection(choix_debut):
         module_wallet()
 
 def module_evaluate():
-    code_isin = isin()
-    lien_donnee = url(code_isin, 1)
-    lien_indic = url(code_isin, 2)
+    code_isin = isin_evaluate()
+    lien_donnee = url_evaluate(code_isin, 1)
+    lien_indic = url_evaluate(code_isin, 2)
     liste_donnees = scrapping_bilan_compte_resultat(lien_donnee)
     liste_ratio = scrapping_ratio(lien_indic)
+    print("\n##################\n")
     ca(liste_donnees)
     resultat_net(liste_donnees)
     bpa(liste_ratio)
@@ -40,8 +41,8 @@ def module_wallet():
     choix_wallet = start()
 
     if choix_wallet == 1:
-        code_isin = isin(choix_wallet)
-        url_recup = url(code_isin)
+        code_isin = isin_wallet(choix_wallet)
+        url_recup = url_wallet(code_isin)
         scrapping(url_recup)
 
     elif choix_wallet == 2:
@@ -49,8 +50,8 @@ def module_wallet():
         calcul_gain(transactions)
 
     elif choix_wallet == 3:
-        code_isin = isin(choix_wallet)
-        url_recup = url(code_isin)
+        code_isin = isin_wallet(choix_wallet)
+        url_recup = url_wallet(code_isin)
         nom_action, price = scrapping(url_recup)
         write(nom_action, price, code_isin, url_recup)
 
