@@ -23,12 +23,12 @@ import pandas as pd
 import datetime
 from bs4 import BeautifulSoup
 
-def isin():
-    code_isin = input("Rentrez le code ISIN de l'action que vous souhaitez analyser\n\nChoix : ")
+def isin_evaluate():
+    code_isin = input("\n##################\nRentrez le code ISIN de l'action que vous souhaitez analyser\n\nChoix : ")
 
     return code_isin
 
-def url(code_isin, url_utilise):
+def url_evaluate(code_isin, url_utilise):
     query = ""
     url_recup = ""
 
@@ -212,9 +212,9 @@ def gearing(liste_ratio):
 PARTIE PROCESSUS
 """
 if __name__ == '__main__':
-    code_isin = isin()
-    lien_donnee = url(code_isin, 1)
-    lien_indic = url(code_isin, 2)
+    code_isin = isin_evaluate()
+    lien_donnee = url_evaluate(code_isin, 1)
+    lien_indic = url_evaluate(code_isin, 2)
     liste_donnees = scrapping_bilan_compte_resultat(lien_donnee)
     liste_ratio = scrapping_ratio(lien_indic)
     ca(liste_donnees)
@@ -240,9 +240,9 @@ TODO :
 - Scrap secteur
 - Scrapping différent secteur bancaire (à vérif)
 - différencier ROE et ROCE 
-- diff entre -400 et -
+- diff entre -400 et - (absence de données)
 ---
 Module "pépite"
-- Ressortir des actions avec ratios similaires ? (sous-evaluation Stellantis)
+- Ressortir des actions avec ratios similaires ? (exemple action avec même sous-evaluation que Stellantis)
 """
 
