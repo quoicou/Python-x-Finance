@@ -2,13 +2,13 @@ from evaluate import *
 from wallet import *
 
 def debut():
-    choix_debut = int(input("Bonjour et bienvenue sur le programme de finance assisté !\n\nComment puis-je vous aider ?\n\n1) Accéder à l'évaluateur d'action\n2) Accéder à la gestion de wallet fictif ?\n\nChoix : "))
+    choix_debut = int(input("Bonjour et bienvenue sur le programme de finance assisté !\n\nComment puis-je vous aider ?\n\n1) Accéder à l'évaluateur d'action\n2) Accéder à la gestion de wallet fictif\n\nChoix : "))
 
     return choix_debut
 
 def redirection(choix_debut):
     while choix_debut not in [1, 2]:
-        choix_debut = int(input("\n##################\nERREUR DE SAISIE, veuillez réessayer\n\nComment puis-je vous aider ?\n\n1) Accéder à l'évaluateur d'action\n2) Accéder à la gestion de wallet fictif ?\n\nChoix : "))
+        choix_debut = int(input("\n##################\nERREUR DE SAISIE, veuillez réessayer\n\nComment puis-je vous aider ?\n\n1) Accéder à l'évaluateur d'action\n2) Accéder à la gestion de wallet fictif\n\nChoix : "))
 
     if choix_debut == 1:
         module_evaluate()
@@ -38,23 +38,33 @@ def module_evaluate():
     # capitalisation/fonds propres
 
 def module_wallet():
-    choix_wallet = start()
+    choix = start()
 
-    if choix_wallet == 1:
-        code_isin = isin_wallet(choix_wallet)
+    if choix == 1:
+        code_isin = isin_wallet(choix)
         url_recup = url_wallet(code_isin)
         scrapping(url_recup)
 
-    elif choix_wallet == 2:
-        transactions = read()
-        calcul_gain(transactions)
+    elif choix == 2:
+        choix_2 = start_2()
 
-    elif choix_wallet == 3:
-        code_isin = isin_wallet(choix_wallet)
+        if choix_2 == 1:
+            transactions = read()
+            calcul_gain(transactions)
+
+        elif choix_2 == 2:
+            nom_dossier = choisir_nom_wallet()
+            code_isin = isin_wallet(choix_2)
+            url_recup = url_wallet(code_isin)
+            nom_action, price = scrapping(url_recup)
+            write(nom_action, price, code_isin, url_recup, nom_dossier, 0)
+
+    elif choix == 3:
+        nom_dossier, budget_wallet = creation_nom_wallet()
+        code_isin = isin_wallet(choix)
         url_recup = url_wallet(code_isin)
         nom_action, price = scrapping(url_recup)
-        write(nom_action, price, code_isin, url_recup)
-
+        write(nom_action, price, code_isin, url_recup, nom_dossier, budget_wallet)
 """
 PARTIE PROCESSUS
 """
