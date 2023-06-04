@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import re
 import os
 
+chemin = "C://Users//Asus//Documents//PythonxFinance//"
+
 def start():
     choix = int(input("\n##################\nQue souhaitez-vous ?\n\n1) Consulter action (Prix + Variation)\n2) Consulter les wallets\n3) Créer wallet\n\nChoix : "))
 
@@ -17,7 +19,11 @@ def start():
 def start_2():
     choix_2 = int(input("\n##################\nQue souhaitez-vous ?\n\n1) Comparer wallet\n2) Ajouter une action au wallet\n\nChoix : "))
 
-    return choix_2
+    while choix_2 not in [1, 2]:
+        choix_2 = int(input("\n##################\nERREUR DE SAISIE\n\nQue souhaitez-vous ?\n\n1) Comparer wallet\n2) Ajouter une action au wallet\n\nChoix : "))
+
+    if choix_2 in [1, 2]:
+        return choix_2
 
 def isin_wallet(choix):
     code_isin = ""
@@ -35,7 +41,7 @@ def url_wallet(code_isin):
     url = f"https://www.google.com/search?q={query}"
     url_recup = ""
 
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
+    headers = {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -45,7 +51,7 @@ def url_wallet(code_isin):
         try:
             lien = result.get("href")
             if f"{code_isin}/societe.html" in lien:
-                url_recup = lien
+                url_recup = (lien.split('&')[0])[7:]
         except:
             pass
 
@@ -70,14 +76,14 @@ def scrapping(url_recup):
 
 def recup_bugdet_wallet(fichier_budget):
     with open(fichier_budget, "r") as f:
-        budget = int(f.readline())
+        budget = float(f.readline())
 
     return budget
 
 def write(nom_action, price, code_isin, url_recup, nom_dossier, budget_wallet):
-    fichier_action = f"INSERER CHEMIN{nom_dossier}//wallet.txt"
+    fichier_action = f"{chemin}{nom_dossier}//wallet.txt"
 
-    fichier_budget = f"INSERER CHEMIN{nom_dossier}//budget.txt"
+    fichier_budget = f"{chemin}{nom_dossier}//budget.txt"
 
     nb_action = int(input("\n##################\nCombien d'action souhaitez-vous acheter ?\n\nChoix : "))
 
@@ -87,19 +93,19 @@ def write(nom_action, price, code_isin, url_recup, nom_dossier, budget_wallet):
         budget_wallet = recup_bugdet_wallet(fichier_budget)
 
     while prix_total > budget_wallet:
-        nb_action = int(input(f"\n##################\nERREUR BUDGET NON-SUFFISANT de {budget_wallet}\n\nCombien d'action souhaitez-vous acheter ?\n\nChoix : "))
+        nb_action = int(input(f"\n##################\nERREUR BUDGET INSUFFISANT de {budget_wallet}\n\nCombien d'action souhaitez-vous acheter ?\n\nChoix : "))
 
-        prix_total = round(price * nb_action, 3)
+        prix_total = round(price * nb_action, 5)
 
     print(f"\nVous venez d'acheter {prix_total} € d'action {nom_action}")
 
     with open(fichier_action, "a") as f:
         f.write(f"\n[[{code_isin}][{nom_action}][{price}][{nb_action}][{datetime.datetime.now()}][{url_recup}]]")
 
-    budget_wallet = budget_wallet - prix_total
+    budget_wallet = round(budget_wallet - prix_total, 5)
 
-    with open(fichier_budget, "a") as f:
-        f.write(f"\n[{budget_wallet}]")
+    with open(fichier_budget, "w") as f:
+        f.write(f"\n{budget_wallet}")
 
 def read():
     chemin, liste_wallet = affichage_liste_wallet()
@@ -120,8 +126,6 @@ def read():
     return transactions
 
 def affichage_liste_wallet():
-    chemin = "INSERER CHEMIN"
-
     liste_wallet = os.listdir(chemin)
 
     if len(liste_wallet) == 0:
@@ -159,7 +163,7 @@ def calcul_gain(transactions):
 
                 total_gain_loss += gain_perte_unitaire * quantite
 
-        if total_gain_loss > 0:
+        if total_gain_loss >= 0:
             print(f"\n##################\nLe wallet a une plus-value totale de {round(total_gain_loss, 4)} €")
         else:
             print(f"\n##################\nLe wallet a une moins-value totale de {round(total_gain_loss, 4)} €")
@@ -197,7 +201,7 @@ def creation_nom_wallet():
     else:
         budget_wallet = 10000
 
-    return nom_dossier, nom_wallet, budget_wallet
+    return nom_dossier, budget_wallet
 
 def choisir_nom_wallet():
     chemin, liste_wallet = affichage_liste_wallet()
@@ -239,7 +243,7 @@ if __name__ == '__main__':
             write(nom_action, price, code_isin, url_recup, nom_dossier, 0)
 
     elif choix == 3:
-        nom_dossier, nom_wallet, budget_wallet = creation_nom_wallet()
+        nom_dossier, budget_wallet = creation_nom_wallet()
         code_isin = isin_wallet(choix)
         url_recup = url_wallet(code_isin)
         nom_action, price = scrapping(url_recup)
