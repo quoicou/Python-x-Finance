@@ -7,12 +7,10 @@ def scrapping():
     requete = requests.get(url).text
     soup = BeautifulSoup(requete, 'html.parser')
     tableau = soup.find('table',{'class':"right years5"})
-
     df = pd.read_html(str(tableau))
     # convert list to dataframe
     df = pd.DataFrame(df[0])
     df = df.values.tolist()
-
     print(df)
     return df
 """
@@ -38,7 +36,7 @@ def url_evaluate(code_isin, url_utilise):
         query = f"site:tradingsat.com indicateurs-financiers {code_isin}"
     url = f"https://www.google.com/search?q={query}"
 
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
+    headers = {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -49,10 +47,10 @@ def url_evaluate(code_isin, url_utilise):
             lien = result.get("href")
             if url_utilise == 1:
                 if f"{code_isin}/donnees-financieres" in lien:
-                    url_recup = lien
+                    url_recup = (lien.split('&')[0])[7:]
             elif url_utilise == 2:
                 if f"{code_isin}/indicateurs-financiers" in lien:
-                    url_recup = lien
+                    url_recup = (lien.split('&')[0])[7:]
         except:
             pass
 
@@ -133,6 +131,7 @@ def ca(liste_donnees):
     if ligne != 0:
         nom_donnee = "CA"
         nb_annee = len(liste_donnees[ligne])
+        print("\n##################\n")
         tableau = affichage_donnee(liste_donnees, nb_annee, nom_donnee, ligne)
 
 def resultat_net(liste_donnees):
@@ -245,4 +244,3 @@ TODO :
 Module "pépite"
 - Ressortir des actions avec ratios similaires ? (exemple action avec même sous-evaluation que Stellantis)
 """
-
